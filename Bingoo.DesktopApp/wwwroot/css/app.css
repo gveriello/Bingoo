@@ -61,3 +61,26 @@ a, .btn-link {
 .number {
     z-index: 1;
 }
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.blinking-text {
+    animation: blink 1s linear infinite;
+}
+
+.card
+{
+    border-radius: 5px !important;
+}
