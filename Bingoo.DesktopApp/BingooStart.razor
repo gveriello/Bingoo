@@ -54,8 +54,8 @@
                     @for (int number = Convert.ToInt32($"{row}{1}"); number < Convert.ToInt32($"{row + 1}{1}"); number++)
                     {
                         <div class="col-md-1" style="margin-left: 10px">
-                            <div class="circle" style="background-color: @(IsExtracted(number) ? "red": "black")">
-                                <span class="number">@number</span>
+                            <div class="circle text-dark rounded-circle" style="background-color: @(IsExtracted(number) ? "red": "white");">
+                                <span style="color: @(IsExtracted(number) ? "white": "black");" class="number">@number</span>
                             </div>
                         </div>
                     }
@@ -74,7 +74,7 @@
                     <h4 class="text-left">Ultimo numero estratto: @LastNumberExtracted</h4>
                 </div>
             </div>
-            <div class="card bg-info text-white border-dark mb-3">
+            <div class="card border-dark mb-3">
                 <div class="card-body">
                     <h4 class="text-left">Ultimi 5 numeri estratti: @Last5ExtractedNumbers</h4>
                 </div>
