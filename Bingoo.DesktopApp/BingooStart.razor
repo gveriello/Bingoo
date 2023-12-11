@@ -1,22 +1,61 @@
-﻿@using System.Globalization;
+﻿﻿@using System.Globalization;
 @using System.Threading;
 @using Toolbelt.Blazor.SpeechSynthesis;
 
 <div class="container-fluid">
     <div class="row">
-        <h1>Bingoo <h4><i>by Giuseppe Veriello</i></h4></h1>
+        <div class="col-md-12 text-right mb-4">
+            <h3><i>created by Giuseppe Veriello</i></h3>
+        </div>
     </div>
-    <br /> <br />
-    <div class="row">
-        <div class="col-md-offset-1 col-md-7">
+    <div class="row" style="margin-top: 5%">
+        <div class="col-md-3 text-center mb-4">
+            <h3>Let's Bingoo!</h3>
+            <div class="btn-group" role="group" aria-label="Player buttons">
+                <button type="button" class="btn btn-lg btn-primary rounded-circle" hidden="@(IsStarted)" @onclick="StartAsync"><i class="fa-2x fa-solid fa-play p-2"></i></button>
+                <button type="button" class="btn btn-lg btn-light rounded-circle" hidden="@(!IsStarted)" @onclick="Pause"><i class="fa-2x fa-solid fa-pause p-2"></i></button>
+                <button type="button" class="btn btn-lg btn-danger rounded-circle" hidden="@(!IsStarted || IsPaused)" @onclick="Stop"><i class="fa-2x fa-solid fa-stop p-2"></i></button><br />
+            </div><br /><br />
+            <h4 class="text-danger font-weight-bold blinking-text" hidden="@(!IsPaused)">Gioco in pausa</h4>
+            <h4 class="text-danger" hidden="@(SpeechAvailable)">Attenzione: voce non disponibile</h4>
+            <div class="card mb-3 rounded-pill">
+                <div class="card-body">
+                    <h4>Velocità di gioco: @GameVelocity</h4>
+                    <input type="range" class="form-control-range" min="1" max="5" step="1" @bind="@Velocity" @bind:event="oninput" />
+                </div>
+            </div>
+            <hr />
+            <div>
+                <h4>Calcolo rapido delle vincite:</h4>
+                <input disabled="@IsStarted" type="number" @bind=numCaselle placeholder="numero caselle vendute:" class="form-control" />         <br />
+                <input disabled="@IsStarted" type="number" @bind=price placeholder="prezzo di ogni casella:" class="form-control" />   <br />
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card bg-primary text-white border-dark mb-3 rounded-pill">
+                        <div class="card-body">
+                            <h4>Cinquina: €@Cinquina()</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-success text-white border-dark mb-3 rounded-pill">
+                        <div class="card-body">
+                            <h4>Bingo: €@Bingo()</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
             @for (int row = 0; row < 9; row++)
             {
-                <div style="margin-top:1%; margin-left:10%" class="row">
+                <div style="margin-top:1%;" class="row">
                     @for (int number = Convert.ToInt32($"{row}{1}"); number < Convert.ToInt32($"{row + 1}{1}"); number++)
                     {
-                        <div class="col-md-1">
-                            <div class="circle" style="background-color: @(IsExtracted(number) ? "red": "black");">
-                                <span class="number">@number</span>
+                        <div class="col-md-1" style="margin-left: 10px">
+                            <div class="circle text-dark rounded-circle" style="background-color: @(IsExtracted(number) ? "red": "white");">
+                                <span style="color: @(IsExtracted(number) ? "white": "black");" class="number">@number</span>
                             </div>
                         </div>
                     }
@@ -24,31 +63,25 @@
             }
         </div>
         <div class="col-md-3">
-            <button class="btn btn-primary"  @onclick="StartAsync">Avvia nuova sessione</button>
-            <button class="btn btn-warning" hidden="@(!IsStarted)" @onclick="Pause">Pausa</button>
-            <button class="btn btn-warning" hidden="@(!IsStarted || IsPaused)" @onclick="Stop">Stop</button><br />
 
-            <hr />                                                                                    
-            <h4>Velocità di gioco: @GameVelocity</h4>
-            <input type="range" class="form-control-range" min="1" max="5" step="1" @bind="@Velocity" @bind:event="oninput" />
-            <hr />
-            <h4>Ultimo numero estratto: @LastNumberExtracted</h4>
-            <h4>Ultimi 5 numeri estratti: @Last5ExtractedNumbers</h4>
-            <h4>Totale numeri estratti: @TotExtractedNumbers</h4>
-            <hr />
-            <div>
-                <h4>Calcolo rapido delle vincite:</h4>
-                <input disabled="@IsStarted" type="number" @bind=numCaselle placeholder="numero caselle vendute:" class="form-control" />         <br />
-                <input disabled="@IsStarted" type="number" @bind=price placeholder="prezzo di ogni casella:" class="form-control" />   <br />
+            <div class="card border-dark mb-3">
+                <div class="card-body">
+                    <h4>Totale numeri estratti: @TotExtractedNumbers</h4>
+                </div>
             </div>
-            <h4>Cinquina: €@Cinquina()</h4>
-            <h4>Bingo: €@Bingo()</h4>
+            <div class="card border-dark mb-3 rounded-pill">
+                <div class="card-body">
+                    <h4 class="text-left">Ultimo numero estratto: @LastNumberExtracted</h4>
+                </div>
+            </div>
+            <div class="card border-dark mb-3">
+                <div class="card-body">
+                    <h4 class="text-left">Ultimi 5 numeri estratti: @Last5ExtractedNumbers</h4>
+                </div>
+            </div>
             @* <hr />
             <button class="btn btn-primary" disabled="@(!IsStarted)" @onclick="Verify">Verifica cartella</button>
             <button class="btn btn-primary" @onclick="Register">Registra cartella</button> *@
-            <hr />
-            <h4 class="text-danger" hidden="@(!IsPaused)">Gioco in pausa</h4>
-            <h4 class="text-danger" hidden="@(SpeechAvailable)">Attenzione: voce non disponibile</h4>
         </div>
     </div>
 </div>
@@ -100,8 +133,8 @@
         1 => "Super Rapido",
         2 => "Rapido",
         3 => "Normale",
-        4 => "Lento"  ,
-        5 => "Super Lento"  ,
+        4 => "Lento",
+        5 => "Super Lento",
         _ => "Normale"
     };
 

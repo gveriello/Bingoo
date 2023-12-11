@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34302.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bingoo.DesktopApp", "Bingoo.DesktopApp\Bingoo.DesktopApp.csproj", "{58B6E3D9-07B1-448A-B4E8-CE32ECCAD9ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bingoo", "Bingoo.DesktopApp\Bingoo.csproj", "{58B6E3D9-07B1-448A-B4E8-CE32ECCAD9ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
