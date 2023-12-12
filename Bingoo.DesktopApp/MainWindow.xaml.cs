@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.IO;
+using System.Reflection;
 using System.Windows;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
 
@@ -17,6 +19,8 @@ namespace Bingoo
             serviceCollection.AddBlazorWebViewDeveloperTools();
             serviceCollection.AddSpeechSynthesis();
             Resources.Add("services", serviceCollection.BuildServiceProvider());
+
+            this.blazorWebView.HostPage = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "wwwroot", "index.html");
         }
     }
 }

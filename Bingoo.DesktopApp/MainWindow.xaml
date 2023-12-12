@@ -12,7 +12,7 @@
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized">
     <Grid>
-        <blazor:BlazorWebView HostPage="\wwwroot\index.html"
+        <blazor:BlazorWebView x:Name="blazorWebView"
                               Services="{DynamicResource services}">
             <blazor:BlazorWebView.RootComponents>
                 <blazor:RootComponent Selector="#app"
