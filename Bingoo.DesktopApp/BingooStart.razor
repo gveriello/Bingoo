@@ -144,8 +144,9 @@
                                             Nessun premio, mi dispiace. <br /> <br />
                                             <i style="font-size:150px" class="fa-regular fa-face-frown"></i>
                                         </h5><br />
-                                        <h5 hidden="@(!VerifyCinquina)" class="text-success font-weight-bold blinking-text">Complimenti, hai vinto la cinquina!</h5><br />
-                                        <h5 hidden="@(!VerifyBingo)" class="text-success font-weight-bold blinking-text">Complimenti, hai vinto il Bingoo!</h5><br />
+                                        <h5 hidden="@(!VerifyCinquina)" class="text-success font-weight-bold">Complimenti, hai vinto la cinquina!</h5><br />
+                                        <h5 hidden="@(!VerifyBingo)" class="text-success font-weight-bold">Complimenti, hai vinto il Bingoo!</h5><br />
+                                        <i style="font-size:150px" hidden="@(!VerifyCinquina && !VerifyBingo)" class="text-success fa-regular fa-face-smile-beam"></i>
                                     </div>
                                 </div>
                             </div>
@@ -406,6 +407,7 @@
     {
         this.ShowModalVerificaVincita = false;
         IsPaused = !IsPaused;
+        this.Errors = string.Empty;
         StateHasChanged();
     }
 
@@ -503,6 +505,13 @@
     private async Task VerifyCartellaAsync()
     {
         this.Errors = string.Empty;
+        if (string.IsNullOrEmpty(verificaCartellaId))
+        {
+            this.Errors = "Senza Id non posso effettuare nessun controllo.";
+            StateHasChanged();
+            return;
+        }
+
         var cartellaToVerify = this.Cartelle.FirstOrDefault(cartella => cartella.Id == verificaCartellaId);
         if (cartellaToVerify is not null)
         {
