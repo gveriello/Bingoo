@@ -14,9 +14,11 @@
     <div class="row">
         <div class="col-md-4 text-left">
             <div class="btn-group" role="group" aria-label="Player buttons">
-                <button type="button" class="btn btn-lg btn-primary rounded-circle" disabled="@(IsStarted)" data-toggle="modal" data-target="#buyedAndPricedCartel"><i class="fa-2x fa-solid fa-play p-2"></i></button>&nbsp;
+                <button type="button" class="btn btn-lg btn-light rounded-circle" disabled="@(IsStarted)" data-toggle="modal" data-target="#buyedAndPricedCartel"><i class="fa-2x fa-solid fa-play p-2"></i></button>&nbsp;
                 <button type="button" class="btn btn-lg btn-light rounded-circle" disabled="@(!IsStarted)" @onclick="Pause"><i class="fa-2x fa-solid fa-pause p-2"></i></button> &nbsp;
-                <button type="button" class="btn btn-lg btn-danger rounded-circle" disabled="@(!IsStarted || IsPaused)" @onclick="Stop"><i class="fa-2x fa-solid fa-stop p-2"></i></button><br />
+                <button type="button" class="btn btn-lg btn-light rounded-circle" disabled="@(!IsStarted || IsPaused)" @onclick="Stop"><i class="fa-2x fa-solid fa-stop p-2"></i></button><br />
+                <span class="text-center" style="margin-left: 10px; margin-right: 10px; font-size: 50px;">|</span>
+              <button type="button" class="btn btn-lg btn-light rounded-circle" data-toggle="modal" data-target="#manageCartel"><i class="fa-2x fa-solid fa-edit p-2"></i></button> &nbsp;
             </div>
         </div>
         <div class="col-md-4 text-center">
@@ -24,28 +26,54 @@
             <h4 class="text-danger font-weight-bold blinking-text" hidden="@(!IsPaused)">Gioco in pausa</h4>
             <h4 class="text-danger" hidden="@(SpeechAvailable)">Attenzione: voce non disponibile</h4>
         </div>
-        <div class="col-md-4 text-center">
-            <h4>Velocità di gioco: @GameVelocity</h4>
+        <div class="col-md-2 offset-md-2 text-center">
+            <h5>Velocità di gioco: @GameVelocity</h5>
             <input type="range" class="form-control-range" min="1" max="5" step="1" @bind="@Velocity" @bind:event="oninput" />
         </div>
     </div>    <br /> <br />
 
     <div class="row">
         <div class="col-md-3">
-            <div class="jumbotron " style="background-color: #F1F1F1">
+            <div class="trophy-card c-bingoo border border-secondary bg-white">
                 <div class="container-fluid">
-                    <h1 class="display-6"><i class="fa-solid fa-trophy"></i> Cinquina</h1>
-                    <h2 class="lead">Premio: € @Cinquina()</h2>
+                    <h2><i class="fa-solid fa-trophy text-warning"></i> Bingoo</h2>
+                    <h5 class="lead">Premio: € @Bingo()</h5>
                 </div>
             </div>
-            <div class="jumbotron " style="background-color: #F1F1F1">
+            <div class="trophy-card c-cinquina border border-secondary bg-white">
                 <div class="container-fluid">
-                    <h1 class="display-6"><i class="fa-solid fa-trophy"></i> Bingoo</h1>
-                    <h2 class="lead">Premio: € @Bingo()</h2>
+                    <h3><i class="fa-solid fa-trophy text-warning"></i> Cinquina</h3>
+                    <h5 class="lead">Premio: € @Cinquina()</h5>
                 </div>
             </div>
+            @if(LastNumberExtracted != 0)
+            {
+                <div class="text-center mt-5 mb-3 border border-secondary" style="border-radius: 10px; padding: 20px">
+                    <h3>Ultimi estratti</h3>
+                    <div class="d-flex justify-content-center">
+                        <div class="last-extracted-circle text-dark rounded-circle" style="background-color: red;">
+                            <span style="color: white;" class="text-center">@(LastNumberExtracted.Value.ToString() ?? "-")</span>
+                        </div>
+
+                        @foreach (var number in Last4ExtractedNumbers)
+                        {
+                            <div style="margin-left: -2px; padding: 5px">
+                                <div class="circle text-dark rounded-circle" style="background-color: black">
+                                    <span style="color: white" class="number text-center">
+                                        @number
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <h5 class=""><i>Totale numeri estratti:</i> @TotExtractedNumbers</h5>
+                </div>
+            }
         </div>
-        <div class="col-md-9 ">
+        <div class="col-md-9">
             @for (int row = 0; row < 9; row++)
             {
                 <div style="margin-top:1%;" class="row">
@@ -62,31 +90,6 @@
         </div>
     </div>                                <br />  <br />
 
-    <div class="row" hidden="@(!numberExtracted?.Any() ?? true)">
-        <div class="col-md-4 offset-md-3">
-            <div class="row">
-                <h2 class="align-middle"><i>Ultimi numeri estratti:</i></h2>
-                <div class="col-md-1">
-                    <div class="circle text-dark rounded-circle" style="background-color: blue;">
-                        <span style="color: white" class="number text-center">@LastNumberExtracted</span>
-                    </div>
-                </div>
-                @foreach (var number in Last4ExtractedNumbers)
-                {
-                    <div class="col-md-1">
-                        <div class="circle text-dark rounded-circle" style="background-color: black">
-                            <span style="color: white" class="number text-center">
-                                @number
-                            </span>
-                        </div>
-                    </div>
-                }
-            </div>
-        </div>
-        <div class="col-md-4">
-            <h2><i>Totale numeri estratti:</i> @TotExtractedNumbers</h2>
-        </div>
-    </div>
 
     <div class="row" style="margin-top: 5%">
         <div class="col-md-4 text-center mb-4">
@@ -225,27 +228,6 @@
                     </div>
                 </div>
             </div>
-            <hr />
-            <div>
-                <h4>Calcolo rapido delle vincite:</h4>
-
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card bg-primary text-white border-dark mb-3 rounded-pill">
-                        <div class="card-body">
-                            <h4>Cinquina: €@Cinquina()</h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card bg-success text-white border-dark mb-3 rounded-pill">
-                        <div class="card-body">
-                            <h4>Bingo: €@Bingo()</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -276,7 +258,30 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                <button type="button" class="btn btn-primary" @onclick="StartAsync">Avvia partita</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" @onclick="StartAsync">Avvia partita</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="manageCartel" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Gestisci cartelle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Salva</button>
             </div>
         </div>
     </div>
@@ -306,7 +311,7 @@
     private bool ShowModalVerificaVincita { get; set; } = false;
     private int Velocity { get; set; } = 3;
     private string Errors { get; set; }
-    private int? LastNumberExtracted => this.numberExtracted?.TakeLast(1)?.FirstOrDefault() ?? null;
+    private int? LastNumberExtracted => this.numberExtracted?.TakeLast(1)?.FirstOrDefault();
     private List<Cartella> Cartelle { get; set; }
     [Inject] private SpeechSynthesis SpeechSynthesis { get; set; }
 
