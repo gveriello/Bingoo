@@ -6,29 +6,96 @@
 @using Toolbelt.Blazor.SpeechSynthesis;
 
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12 text-right mb-4">
-            <h3><i>created by Giuseppe Veriello</i></h3>
-        </div>
+    @* <div class="row">
+    <div class="col-md-12 text-right mb-4">
+    <h3><i>created by Giuseppe Veriello</i></h3>
     </div>
-    <div class="row" style="margin-top: 5%">
-        <div class="col-md-4 text-center mb-4">
-            <h3>Let's Bingoo!</h3>
+    </div> *@
+    <div class="row">
+        <div class="col-md-4 text-left">
             <div class="btn-group" role="group" aria-label="Player buttons">
-                <button type="button" class="btn btn-lg btn-primary rounded-circle" hidden="@(IsStarted)" @onclick="StartAsync"><i class="fa-2x fa-solid fa-play p-2"></i></button>
-                <button type="button" class="btn btn-lg btn-light rounded-circle" hidden="@(!IsStarted)" @onclick="Pause"><i class="fa-2x fa-solid fa-pause p-2"></i></button>
-                <button type="button" class="btn btn-lg btn-danger rounded-circle" hidden="@(!IsStarted || IsPaused)" @onclick="Stop"><i class="fa-2x fa-solid fa-stop p-2"></i></button><br />
-            </div><br /><br />
+                <button type="button" class="btn btn-lg btn-primary rounded-circle" disabled="@(IsStarted)" data-toggle="modal" data-target="#buyedAndPricedCartel"><i class="fa-2x fa-solid fa-play p-2"></i></button>&nbsp;
+                <button type="button" class="btn btn-lg btn-light rounded-circle" disabled="@(!IsStarted)" @onclick="Pause"><i class="fa-2x fa-solid fa-pause p-2"></i></button> &nbsp;
+                <button type="button" class="btn btn-lg btn-danger rounded-circle" disabled="@(!IsStarted || IsPaused)" @onclick="Stop"><i class="fa-2x fa-solid fa-stop p-2"></i></button><br />
+            </div>
+        </div>
+        <div class="col-md-4 text-center">
+            <h1>Let's Bingoo!</h1>
             <h4 class="text-danger font-weight-bold blinking-text" hidden="@(!IsPaused)">Gioco in pausa</h4>
             <h4 class="text-danger" hidden="@(SpeechAvailable)">Attenzione: voce non disponibile</h4>
+        </div>
+        <div class="col-md-4 text-center">
+            <h4>Velocità di gioco: @GameVelocity</h4>
+            <input type="range" class="form-control-range" min="1" max="5" step="1" @bind="@Velocity" @bind:event="oninput" />
+        </div>
+    </div>    <br /> <br />
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="jumbotron " style="background-color: #F1F1F1">
+                <div class="container-fluid">
+                    <h1 class="display-6"><i class="fa-solid fa-trophy"></i> Cinquina</h1>
+                    <h2 class="lead">Premio: € @Cinquina()</h2>
+                </div>
+            </div>
+            <div class="jumbotron " style="background-color: #F1F1F1">
+                <div class="container-fluid">
+                    <h1 class="display-6"><i class="fa-solid fa-trophy"></i> Bingoo</h1>
+                    <h2 class="lead">Premio: € @Bingo()</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9 ">
+            @for (int row = 0; row < 9; row++)
+            {
+                <div style="margin-top:1%;" class="row">
+                    @for (int number = Convert.ToInt32($"{row}{1}"); number < Convert.ToInt32($"{row + 1}{1}"); number++)
+                    {
+                        <div class="col-md-1" style="margin-left: 10px">
+                            <div class="circle text-dark rounded-circle" style="background-color: @(IsExtracted(number) ? "red": "white");">
+                                <span style="color: @(IsExtracted(number) ? "white": "black");" class="number text-center">@number</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>                                <br />  <br />
+
+    <div class="row" hidden="@(!numberExtracted?.Any() ?? true)">
+        <div class="col-md-4 offset-md-3">
+            <div class="row">
+                <h2 class="align-middle"><i>Ultimi numeri estratti:</i></h2>
+                <div class="col-md-1">
+                    <div class="circle text-dark rounded-circle" style="background-color: blue;">
+                        <span style="color: white" class="number text-center">@LastNumberExtracted</span>
+                    </div>
+                </div>
+                @foreach (var number in Last4ExtractedNumbers)
+                {
+                    <div class="col-md-1">
+                        <div class="circle text-dark rounded-circle" style="background-color: black">
+                            <span style="color: white" class="number text-center">
+                                @number
+                            </span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-md-4">
+            <h2><i>Totale numeri estratti:</i> @TotExtractedNumbers</h2>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 5%">
+        <div class="col-md-4 text-center mb-4">
+
+
             <div class="alert alert-danger" role="alert" hidden="@(NoErrors)">
                 @Errors
             </div>
             <div class="card mb-3 rounded-pill">
-                <div class="card-body">
-                    <h4>Velocità di gioco: @GameVelocity</h4>
-                    <input type="range" class="form-control-range" min="1" max="5" step="1" @bind="@Velocity" @bind:event="oninput" />
-                </div>
             </div>
             <hr />
             <h4>Totale cartelle caricate: @TotCartelle</h4>
@@ -51,25 +118,25 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-12">
-                                <input class="form-control" @bind=registraCartellaId type="text" placeholder="Id">
+                                <input class="form-control" @bind=registraCartellaId type="text" placeholder="Id" @bind:event="oninput" required>
                             </div>
                         </div>
                         <br />
                         <div class="row">
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero1 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero1 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero2 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero2 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero3 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero3 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero4 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero4 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero5 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero5 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
                                 <h5>1 riga</h5>
@@ -77,19 +144,19 @@
                         </div>
                         <div class="row">
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero6 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero6 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero7 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero7 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero8 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero8 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero9 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero9 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero10 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero10 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
                                 <h5>2 riga</h5>
@@ -97,19 +164,19 @@
                         </div>
                         <div class="row">
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero11 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero11 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero12 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero12 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero13 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero13 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero14 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero14 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
-                                <input class="form-control" @bind=registraCasellaNumero15 type="number" min="1" max="90" required>
+                                <input class="form-control" @bind=registraCasellaNumero15 type="number" min="1" max="90" @bind:event="oninput" required>
                             </div>
                             <div class="col-md-2">
                                 <h5>3 riga</h5>
@@ -135,7 +202,7 @@
                             <div class="modal-body">
                                 <div class="row">
                                     <div class="col-12">
-                                        <input class="form-control" @bind=verificaCartellaId type="text" placeholder="Id">
+                                        <input class="form-control" @bind=verificaCartellaId type="text" placeholder="Id" @bind:event="oninput" required>
                                     </div>
                                 </div>                  <br />
                                 <div class="row">
@@ -161,8 +228,7 @@
             <hr />
             <div>
                 <h4>Calcolo rapido delle vincite:</h4>
-                <input disabled="@IsStarted" type="number" @bind=numCaselle placeholder="numero caselle vendute:" class="form-control" />         <br />
-                <input disabled="@IsStarted" type="number" @bind=price placeholder="prezzo di ogni casella:" class="form-control" />   <br />
+
             </div>
             <div class="row">
                 <div class="col-md-6">
@@ -181,43 +247,39 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-md-5">
-            @for (int row = 0; row < 9; row++)
-            {
-                <div style="margin-top:1%;" class="row">
-                    @for (int number = Convert.ToInt32($"{row}{1}"); number < Convert.ToInt32($"{row + 1}{1}"); number++)
-                    {
-                        <div class="col-md-1" style="margin-left: 10px">
-                            <div class="circle text-dark rounded-circle" style="background-color: @(IsExtracted(number) ? "red": "white");">
-                                <span style="color: @(IsExtracted(number) ? "white": "black");" class="number">@number</span>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-dark mb-3">
-                <div class="card-body">
-                    <h4>Totale numeri estratti: @TotExtractedNumbers</h4>
-                </div>
-            </div>
-            <div class="card border-dark mb-3 rounded-pill">
-                <div class="card-body">
-                    <h4 class="text-left">Ultimo numero estratto: @LastNumberExtracted</h4>
-                </div>
-            </div>
-            <div class="card border-dark mb-3">
-                <div class="card-body">
-                    <h4 class="text-left">Ultimi 5 numeri estratti: @Last5ExtractedNumbers</h4>
-                </div>
-            </div>
-
-        </div>
     </div>
 
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="buyedAndPricedCartel" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Informazioni preliminari</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input disabled="@IsStarted" type="number" @bind=numCaselle placeholder="numero caselle vendute:" class="form-control" @bind:event="oninput" />
+                    </div>                             
+                    <br />
+                    <br />
+                    <div class="col-md-12">
+                        <input disabled="@IsStarted" type="number" @bind=price placeholder="prezzo di ogni casella:" class="form-control" @bind:event="oninput" />
+                    </div>
+                    <br />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" @onclick="StartAsync">Avvia partita</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -244,7 +306,7 @@
     private bool ShowModalVerificaVincita { get; set; } = false;
     private int Velocity { get; set; } = 3;
     private string Errors { get; set; }
-    private string LastNumberExtracted { get; set; } = "-";
+    private int? LastNumberExtracted => this.numberExtracted?.TakeLast(1)?.FirstOrDefault() ?? null;
     private List<Cartella> Cartelle { get; set; }
     [Inject] private SpeechSynthesis SpeechSynthesis { get; set; }
 
@@ -270,7 +332,7 @@
         return Math.Round((numCaselleToInt * priceToDecimal) * 80 / 100, 2);
     }
 
-    private string Last5ExtractedNumbers => (numberExtracted?.Any() ?? false) ? string.Join(", ", numberExtracted.TakeLast(5)) : "-";
+    private List<int> Last4ExtractedNumbers => (numberExtracted?.Any() ?? false) ? numberExtracted.SkipLast(1).TakeLast(4).ToList() : new List<int>();
     private int TotExtractedNumbers => numberExtracted?.Count ?? 0;
     private bool SpeechAvailable => this._italianVoice is not null;
     private bool NoErrors => string.IsNullOrEmpty(this.Errors);
@@ -287,6 +349,7 @@
 
     void SpeakStarted(object? sender, EventArgs args) => this.SpeakInProgress = true;
     void SpeakEnded(object? sender, EventArgs args) => this.SpeakInProgress = false;
+    private bool IsExtracted(int number) => numberExtracted.Contains(number);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -303,7 +366,6 @@
         this.random = new();
         this.numberExtracted.Clear();
         this.allNumbers.Clear();
-        this.LastNumberExtracted = "-";
         this.ShowModalVerificaVincita = false;
         this.ShowModalRegistraCartella = false;
         LoadAllNumbers();
@@ -379,7 +441,6 @@
                 if (numberExtracted.Contains(randomNumber))
                     continue;
 
-                LastNumberExtracted = randomNumber.ToString();
                 numberExtracted.Add(randomNumber);
                 allNumbers.Remove(randomNumber);
                 await SpeakAsync(randomNumber);
@@ -548,9 +609,8 @@
         this.ShowModalVerificaVincita = !this.ShowModalVerificaVincita;
         this.VerifyCinquina = this.VerifyBingo = false;
         verificaCartellaId = string.Empty;
-        
+
         StateHasChanged();
     }
 
-    private bool IsExtracted(int number) => numberExtracted.Contains(number);
 }
