@@ -6,7 +6,12 @@
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<RootNamespace>Bingoo</RootNamespace>
+		<ApplicationIcon>bingo.ico</ApplicationIcon>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Include="bingo.ico" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="wwwroot\css\app.css">

@@ -43,7 +43,10 @@ namespace Bingoo
 
         private bool IsStarted { get; set; } = false;
         private bool IsPaused { get; set; } = false;
-        private bool VerifyCinquina
+
+        private bool HasPlayerWinCinquina { get; set; } = false;
+        private bool HasPlayerWinBingoo { get; set; } = false;
+        private bool HasWinCinquina
         {
             get
             {
@@ -66,7 +69,7 @@ namespace Bingoo
             }
         }
 
-        private bool VerifyBingo
+        private bool HasWinBingoo
         {
             get
             {
@@ -92,7 +95,6 @@ namespace Bingoo
         }
         private bool SpeakInProgress { get; set; } = false;
         private bool ShowModalRegistraCartella { get; set; } = false;
-        private bool ShowModalVerificaVincita { get; set; } = false;
         private int Velocity { get; set; } = 3;
         private string Errors { get; set; }
         private int? LastNumberExtracted => this.numberExtracted?.TakeLast(1)?.FirstOrDefault();
@@ -127,7 +129,7 @@ namespace Bingoo
                 await LoadCartelleAsync();
             }
         }
-        private decimal Cinquina()
+        private decimal GetPremioCinquina()
         {
             _ = int.TryParse(numCaselle, out var numCaselleToInt);
             decimal.TryParse(price.Replace(".", ","), NumberStyles.Float, new CultureInfo("it-IT"), out var priceToDecimal);
@@ -138,7 +140,7 @@ namespace Bingoo
             return Math.Round((numCaselleToInt * priceToDecimal) * 20 / 100, 2);
         }
 
-        private decimal Bingo()
+        private decimal GetPremioBingoo()
         {
             _ = int.TryParse(numCaselle, out var numCaselleToInt);
             decimal.TryParse(price.Replace(".", ","), NumberStyles.Float, new CultureInfo("it-IT"), out var priceToDecimal);
@@ -154,14 +156,13 @@ namespace Bingoo
             this.random = new();
             this.numberExtracted.Clear();
             this.allNumbers.Clear();
-            this.ShowModalVerificaVincita = false;
             this.ShowModalRegistraCartella = false;
             LoadAllNumbers();
             await LoadTextToSpeechIfNeededAsync();
 
-            this.IsStarted = false;
-            this.IsPaused = false;
-            await InvokeAsync(() => StateHasChanged());
+            this.IsStarted = this.IsPaused = false;
+            this.HasPlayerWinCinquina = this.HasPlayerWinBingoo = false;
+            await InvokeAsync(StateHasChanged);
 
             void LoadAllNumbers()
             {
@@ -252,9 +253,18 @@ namespace Bingoo
             }
         }
 
+        private void ManageCartelle()
+        {
+            if (IsStarted)
+            {
+                IsPaused = true;
+                this.Errors = string.Empty;
+            }
+            StateHasChanged();
+        }
+
         private void Pause()
         {
-            this.ShowModalVerificaVincita = false;
             IsPaused = !IsPaused;
             this.Errors = string.Empty;
             StateHasChanged();

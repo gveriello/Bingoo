@@ -1,9 +1,4 @@
 ﻿<div class="container-fluid">
-    @* <div class="row">
-    <div class="col-md-12 text-right mb-4">
-    <h3><i>created by Giuseppe Veriello</i></h3>
-    </div>
-    </div> *@
     <div class="row">
         <div class="col-md-4 text-left">
             <div class="btn-group" role="group" aria-label="Player buttons">
@@ -11,7 +6,9 @@
                 <button type="button" class="btn btn-lg btn-light rounded-circle" disabled="@(!IsStarted)" @onclick="Pause"><i class="fa-2x fa-solid fa-pause p-2"></i></button> &nbsp;
                 <button type="button" class="btn btn-lg btn-light rounded-circle" disabled="@(!IsStarted || IsPaused)" @onclick="Stop"><i class="fa-2x fa-solid fa-stop p-2"></i></button><br />
                 <span class="text-center" style="margin-left: 10px; margin-right: 10px; font-size: 50px;">|</span>
-                <button type="button" @onclick="@Pause" class="btn btn-lg btn-light rounded-circle" data-toggle="modal" data-target="#manageCartel"><i class="fa-2x fa-solid fa-edit p-2"></i></button> &nbsp;
+                <button type="button" @onclick="@ManageCartelle" class="btn btn-lg btn-light rounded-circle" data-toggle="modal" data-target="#manageCartel">
+                    <i class="fa-2x fa-solid fa-edit p-2"></i>
+                </button> &nbsp;
             </div>
         </div>
         <div class="col-md-4 text-center">
@@ -27,16 +24,48 @@
 
     <div class="row">
         <div class="col-md-3">
-            <div class="trophy-card c-bingoo border border-secondary bg-white">
+            <div class="trophy-card c-bingoo border border-secondary" style="background-color: @(HasPlayerWinBingoo ? "green" : "white"); color: @(HasPlayerWinBingoo ? "white" : "black");">
                 <div class="container-fluid">
-                    <h2><i class="fa-solid fa-trophy text-warning"></i> Bingoo</h2>
-                    <h5 class="lead">Premio: € @Bingo()</h5>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h2>
+                                <input type="checkbox" @bind="@HasPlayerWinBingoo" @bind:event="oninput" class="content-align-right" />
+                                <i class="fa-solid fa-trophy text-warning"></i>
+                                Bingoo
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="offset-md-1 col-md-12">
+                            <h5 class="lead">
+                                <i>
+                                    Premio: € @GetPremioBingoo()
+                                </i>
+                            </h5>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="trophy-card c-cinquina border border-secondary bg-white">
+            <div class="trophy-card c-cinquina border border-secondary" style="background-color: @(HasPlayerWinCinquina ? "green" : "white"); color: @(HasPlayerWinCinquina ? "white" : "black");">
                 <div class="container-fluid">
-                    <h3><i class="fa-solid fa-trophy text-warning"></i> Cinquina</h3>
-                    <h5 class="lead">Premio: € @Cinquina()</h5>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h2>
+                                <input type="checkbox" @bind="@HasPlayerWinCinquina" @bind:event="oninput" class="content-align-right" />
+                                <i class="fa-solid fa-trophy text-warning"></i>
+                                Cinquina
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="offset-md-1 col-md-12">
+                            <h5 class="lead">
+                                <i>
+                                    Premio: € @GetPremioCinquina()
+                                </i>
+                            </h5>
+                        </div>
+                    </div>
                 </div>
             </div>
             @if (LastNumberExtracted != 0)
@@ -73,7 +102,7 @@
                     @for (int number = Convert.ToInt32($"{row}{1}"); number < Convert.ToInt32($"{row + 1}{1}"); number++)
                     {
                         <div class="col-md-1" style="margin-left: 10px">
-                            <div class="circle text-dark rounded-circle" style="background-color: @(IsExtracted(number) ? "red": "white");">
+                            <div class="circle text-dark rounded-circle border border-secondary" style="background-color: @(IsExtracted(number) ? "red": "white");">
                                 <span style="color: @(IsExtracted(number) ? "white": "black");" class="number text-center">@number</span>
                             </div>
                         </div>
@@ -82,7 +111,12 @@
             }
         </div>
     </div>
-
+    <br /><br />
+    <div class="row">
+        <div class="col-md-12 text-right mb-4">
+            <h3><i>created by Giuseppe Veriello</i></h3>
+        </div>
+    </div>
 </div>
 
 <!-- Modal -->
@@ -154,12 +188,12 @@
                                 </div>                  <br />
                                 <div class="row">
                                     <div class="col-12">
-                                        <h5 hidden="@(VerifyCinquina || VerifyBingo || string.IsNullOrEmpty(verificaCartellaId))" class="text-danger text-center font-weight-bold">
+                                        <h5 hidden="@(HasWinCinquina || HasWinBingoo || string.IsNullOrEmpty(verificaCartellaId))" class="text-danger text-center font-weight-bold">
                                             Nessun premio, mi dispiace. <br /> <br />
                                             <i style="font-size:150px" class="fa-regular fa-face-frown"></i><br />
                                         </h5>
 
-                                        <div hidden="@(!VerifyCinquina && !VerifyBingo)">
+                                        <div hidden="@(!HasWinCinquina && !HasWinBingoo)">
                                             <h5 class="text-success text-center font-weight-bold">
                                                 Complimenti!                            <br /> <br />
                                                 <i style="font-size:150px" class="fa-regular fa-face-smile-beam"><br /></i>
@@ -180,13 +214,6 @@
                                                                     <div class="col" style="border: solid; color: @(isExtracted ? "red": "black")">
                                                                         @numberToCheck
                                                                     </div>
-
-
-                                                                    // <div class="col" style="margin-left: 10px">
-                                                                    //     <div class="circle text-dark rounded-circle" style="background-color: @(isExtracted ? "red": "white")">
-                                                                    //         <span style="color: @(isExtracted ? "white": "black");" class="text-center">@numberToCheck</span>
-                                                                    //     </div>
-                                                                    // </div>
                                                                 }
                                                             </div>
                                                             <div class="row">
