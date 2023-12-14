@@ -81,7 +81,6 @@ namespace Bingoo
                 var cartellaToVerify = this.Cartelle?.FirstOrDefault(cartella => cartella.Id == verificaCartellaId);
                 if (cartellaToVerify is not null)
                 {
-                    //verifico cinquina
                     //verifico bingo
                     bool bingoo = cartellaToVerify.FirstRow.All(number => IsExtracted(Convert.ToInt32(number))) &&
                     cartellaToVerify.SecondRow.All(number => IsExtracted(Convert.ToInt32(number))) &&
@@ -94,7 +93,6 @@ namespace Bingoo
             }
         }
         private bool SpeakInProgress { get; set; } = false;
-        private bool ShowModalRegistraCartella { get; set; } = false;
         private int Velocity { get; set; } = 3;
         private string Errors { get; set; }
         private int? LastNumberExtracted => this.numberExtracted?.TakeLast(1)?.FirstOrDefault();
@@ -156,7 +154,6 @@ namespace Bingoo
             this.random = new();
             this.numberExtracted.Clear();
             this.allNumbers.Clear();
-            this.ShowModalRegistraCartella = false;
             LoadAllNumbers();
             await LoadTextToSpeechIfNeededAsync();
 
